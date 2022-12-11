@@ -5,6 +5,7 @@ public class LinkedList<T> implements MyList<T> {
     // TODO: add attributes
     private ListNode<T> first = null; //head
     private ListNode<T> last = null; //tail
+    private int n;
 
     // TODO: add a constructor
     public LinkedList() {
@@ -19,10 +20,15 @@ public class LinkedList<T> implements MyList<T> {
 
     @Override
     public String toString() {
-        return "LinkedList{" +
-                "first=" + first +
-                ", last=" + last +
-                '}';
+        StringBuilder sb =new StringBuilder();
+        ListNode<T> tool =first;
+        sb.append("[");
+        while (tool!=null){
+            sb.append(tool.getValue()+",");
+            tool=tool.getNext();
+        }
+        sb.append("]");
+        return sb.toString();
     }
 
     // TODO: add getters and setters
@@ -47,13 +53,14 @@ public class LinkedList<T> implements MyList<T> {
 
     @Override
     public int size() { // the number of elements in this list.
-        int count = 0;
-        ListNode<T> last = first; //create a new ListNode name:last && last =first(which have all of value)
-        while (last != null) {
-            last = last.getNext();  //
-            count++;
-        }
-        return count;
+        return n;
+//        int count = 0;
+//        ListNode<T> last = first; //create a new ListNode name:last && last =first(which have all of value)
+//        while (last != null) {
+//            last = last.getNext();  //
+//            count++;
+//        }
+//        return count;
     }
 
     @Override
@@ -79,9 +86,11 @@ public class LinkedList<T> implements MyList<T> {
     public void add(T t) {
         if (isEmpty()) {
             first = last = new ListNode<T>(t, null, null);
+            n++;
         } else {
             last.setNext(new ListNode<T>(t, last, null));
             last = last.getNext();
+            n++;
         }
     }
 
@@ -119,62 +128,128 @@ public class LinkedList<T> implements MyList<T> {
         } else {
             findNode(index);
         }
-        return last.getValue();
-    }
-
-    @Override
-    public void add(int index, T element) {
-        try {
-            if (index - 1 >= size()) {
-                throw new IndexOutOfBoundsException();
-            }
-        } catch (IndexOutOfBoundsException e) {
-            index = size();
-        }
-        ListNode<T> node = new ListNode<>(element);
-        node.setNext(findNode(index));
-        if (index > 0) {
-            findNode(index - 1).setNext(node);
-        } else {
-            first.setNext(node);
-        }
+        return findNode(index).getValue();
     }
 
     private ListNode<T> findNode(int index) {
         int count = 0;
-        ListNode<T> last = first;
+        ListNode<T> tool = first;
         while (count < index) {
-            last = last.getNext();
+            tool = tool.getNext();
             count++;
         }
-        return last;
+        return tool;
     }
 
     @Override
-    public T remove(int index) {
-        if (index >= size()) {
-            throw new IndexOutOfBoundsException();
-        } else {
-            findNode(index);
-            last = last.getPrevious();
+    public void add(int index, T element) {
+        ListNode<T> node = new ListNode<>(element);
+        try {
+            if (index<0 ||index>size()) {
+                throw new IndexOutOfBoundsException();
+            }else if(isEmpty()){  // list is empty
+                first=node;
+                last=node;
+            } else if (index==0) { // insert before head
+                node.setNext(first);
+                first.setPrevious(node);
+                first=node;
+            } else if (index ==size()) { // insert after tail
+                node.setPrevious(last);
+                last.setNext(node);
+                last=node;
+            }else { //general case
+                ListNode<T> pre =null;
+                ListNode<T> tool =first;
+                while(index>0){
+                    pre= tool;
+                    tool=tool.getNext();
+                    index--;
+                }
+                node.setNext(tool);
+                node.setPrevious(pre);
+                pre.setNext(node);
+                tool.setPrevious(node);
+                n++;
+//                for (int i=1;i<index;i++){  //*ask Q
+//                    tool=tool.getNext();
+//                }
+//                node.setNext(tool);
+//                node.setPrevious(tool.getPrevious());
+//                tool.setPrevious(node); //set tool previous become node address
+//                tool.getPrevious().setNext(node); //equal the front node's next become node address
+//                if(index==0){
+//                    first=node;
+//                }
+            }
+            //n++;
+        } catch (IndexOutOfBoundsException e) {
+            System.out.println("List index is out of bound");
         }
-        return last.getValue();
+    }
+
+
+    @Override
+    public T remove(int index) {
+        try {
+            if (index<0 ||index>size()) {
+                throw new IndexOutOfBoundsException();
+            }
+        } catch (IndexOutOfBoundsException e) {
+            System.out.println("List index is out of bound");
+        }
+        if (index==0) { // remove head
+            ListNode<T> oldFirst= first;
+            first=first.getNext();
+            if(first!=null){
+                first.setPrevious(null);
+            }else {
+                setLast(null);
+            }
+            oldFirst.setNext(null);
+            n--;
+            return oldFirst.getValue();
+        } else if (index ==size()-1) { // remove last
+            ListNode<T> tool=last;
+            last=last.getPrevious();
+            if(last==null){
+                first=null;
+            }else {
+                last.setNext(null);
+            }
+            n--;
+            return tool.getValue();
+        }else { //general case
+            ListNode<T> pre =null;
+            ListNode<T> tool =first;
+            while(index>0){
+                pre= tool;
+                tool=tool.getNext();
+                index--;
+            }
+            pre.setNext(tool.getNext());
+            tool.getNext().setPrevious(pre);
+            n--;
+            return tool.getValue();
+        }
     }
 
     @Override
     public int indexOf(T o) {
-        ListNode<T> last = first;
-        int count = 0;
-        while (last.getNext() != null) {
-            if (last.getValue() != o) {
-                last = last.getNext();
-                count++;
-                break;
-            } else {
-                count = -1;
+        ListNode<T> tool = first;
+        int index = 0;
+        if(o==null||tool==null){
+            return -1;
+        }else{
+            for(tool=first;tool!=null;tool=tool.getNext()){
+                if(tool.getValue()==o){
+                    return index;
+                }else {
+                    index++;
+                }
             }
+            return -1;
         }
-        return count;
     }
 
     public static void main(String[] args) {
@@ -182,8 +257,20 @@ public class LinkedList<T> implements MyList<T> {
         linkedList.add("sa");
         linkedList.add("si");
         linkedList.add("re");
-        linkedList.remove("si");
-        linkedList.clear();
-        System.out.println(linkedList.size());
+//        System.out.println( linkedList.get(2));
+//        System.out.println(linkedList.get(0));
+        linkedList.add(0,"yo");
+        linkedList.add(1,"rr");
+        System.out.println(linkedList.toString());
+        //linkedList.remove("si");
+        //linkedList.clear();
+        linkedList.remove(1);
+        System.out.println(linkedList.toString());
+        linkedList.remove(0);
+        System.out.println(linkedList.toString());
+        System.out.println(linkedList.indexOf("sa"));
+        System.out.println(linkedList.indexOf("si"));
+        System.out.println(linkedList.indexOf("re"));
+        System.out.println(linkedList.indexOf("aa"));
     }
 }
