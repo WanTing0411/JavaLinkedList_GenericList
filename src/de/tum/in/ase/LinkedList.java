@@ -5,7 +5,6 @@ public class LinkedList<T> implements MyList<T> {
     // TODO: add attributes
     private ListNode<T> first = null; //head
     private ListNode<T> last = null; //tail
-    private int n;
 
     // TODO: add a constructor
     public LinkedList() {
@@ -53,14 +52,13 @@ public class LinkedList<T> implements MyList<T> {
 
     @Override
     public int size() { // the number of elements in this list.
-        return n;
-//        int count = 0;
-//        ListNode<T> last = first; //create a new ListNode name:last && last =first(which have all of value)
-//        while (last != null) {
-//            last = last.getNext();  //
-//            count++;
-//        }
-//        return count;
+        int count = 0;
+        ListNode<T> last = first; //create a new ListNode name:last && last =first(which have all of value)
+        while (last != null) {
+            last = last.getNext();  //
+            count++;
+        }
+        return count;
     }
 
     @Override
@@ -86,11 +84,9 @@ public class LinkedList<T> implements MyList<T> {
     public void add(T t) {
         if (isEmpty()) {
             first = last = new ListNode<T>(t, null, null);
-            n++;
         } else {
             last.setNext(new ListNode<T>(t, last, null));
             last = last.getNext();
-            n++;
         }
     }
 
@@ -170,7 +166,6 @@ public class LinkedList<T> implements MyList<T> {
                 node.setPrevious(pre);
                 pre.setNext(node);
                 tool.setPrevious(node);
-                n++;
 //                for (int i=1;i<index;i++){  //*ask Q
 //                    tool=tool.getNext();
 //                }
@@ -207,7 +202,6 @@ public class LinkedList<T> implements MyList<T> {
                 setLast(null);
             }
             oldFirst.setNext(null);
-            n--;
             return oldFirst.getValue();
         } else if (index ==size()-1) { // remove last
             ListNode<T> tool=last;
@@ -217,7 +211,6 @@ public class LinkedList<T> implements MyList<T> {
             }else {
                 last.setNext(null);
             }
-            n--;
             return tool.getValue();
         }else { //general case
             ListNode<T> pre =null;
@@ -229,7 +222,6 @@ public class LinkedList<T> implements MyList<T> {
             }
             pre.setNext(tool.getNext());
             tool.getNext().setPrevious(pre);
-            n--;
             return tool.getValue();
         }
     }
