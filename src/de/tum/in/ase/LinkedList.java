@@ -1,14 +1,15 @@
 package de.tum.in.ase;
 
 // TODO: make it implement the interface MyList
-public class LinkedList<T>  implements MyList<T> {
+public class LinkedList<T> implements MyList<T> {
     // TODO: add attributes
-    private ListNode<T> first;
-    private ListNode<T> last;
+    private ListNode<T> first = null; //head
+    private ListNode<T> last = null; //tail
 
     // TODO: add a constructor
     public LinkedList() {
-
+        first = null;
+        last = null;
     }
 
     public LinkedList(ListNode<T> first, ListNode<T> last) {
@@ -57,11 +58,7 @@ public class LinkedList<T>  implements MyList<T> {
 
     @Override
     public boolean isEmpty() {
-        boolean Empty = false;
-        if (size() == 0) {
-            Empty = true;
-        }
-        return Empty;
+        return first == null;
     }
 
     @Override
@@ -80,67 +77,65 @@ public class LinkedList<T>  implements MyList<T> {
 
     @Override
     public void add(T t) {
-        ListNode<T> node =new ListNode<T>(t);
-        if(getFirst()==null){
-            setFirst(node);
-        }else{
-            ListNode<T> last = first;
-            while (last.getNext()!=null){
-                last=last.getNext();
-            }
-            last.setNext(node);
+        if (isEmpty()) {
+            first = last = new ListNode<T>(t, null, null);
+        } else {
+            last.setNext(new ListNode<T>(t, last, null));
+            last = last.getNext();
         }
     }
 
     @Override
     public void remove(T o) {
-        ListNode<T> last = first;
-        while (last.getNext() != null) {
-            if (last.getValue().equals(o)) {
-               setFirst(getLast().getNext());
-               break;
+        ListNode<T> tool = first;
+        while (tool.getNext() != null) {
+            if (tool.getValue().equals(o)) {
+                tool = tool.getNext();
+                tool.setPrevious(first);
+                first.setNext(tool);
+                break;
             } else {
-                last=last.getNext();
+                tool = tool.getNext();
             }
         }
     }
 
     @Override
     public void clear() {
-        ListNode<T> last = first.getNext();
-        while (last!=first){
-            ListNode<T> last_next= last.getNext();
-            last.getNext().setNext(null);
-            last.getPrevious().setPrevious(null);
-            last =last_next;
+        ListNode<T> tool = first;
+        while (tool != null) {
+            ListNode<T> next = tool.getNext();
+            tool.setPrevious(null);
+            tool.setNext(null);
+            tool = next;
         }
-        first.setNext(first.getPrevious());
+        first = last = tool = null;
     }
 
     @Override
     public T get(int index) {
-       if (index >= size()){
-           throw new IndexOutOfBoundsException();
-       }else{
+        if (index >= size()) {
+            throw new IndexOutOfBoundsException();
+        } else {
             findNode(index);
-       }
+        }
         return last.getValue();
     }
 
     @Override
     public void add(int index, T element) {
-        try{
-            if(index-1>=size()){
+        try {
+            if (index - 1 >= size()) {
                 throw new IndexOutOfBoundsException();
             }
-        }catch (IndexOutOfBoundsException e){
-            index =size();
+        } catch (IndexOutOfBoundsException e) {
+            index = size();
         }
-        ListNode<T> node=new ListNode<>(element);
+        ListNode<T> node = new ListNode<>(element);
         node.setNext(findNode(index));
-        if(index>0){
-            findNode(index-1).setNext(node);
-        }else{
+        if (index > 0) {
+            findNode(index - 1).setNext(node);
+        } else {
             first.setNext(node);
         }
     }
@@ -154,14 +149,14 @@ public class LinkedList<T>  implements MyList<T> {
         }
         return last;
     }
+
     @Override
     public T remove(int index) {
-        ListNode<T> last = first;
-        if(index>=size()){
+        if (index >= size()) {
             throw new IndexOutOfBoundsException();
-        }else{
+        } else {
             findNode(index);
-            last=last.getPrevious();
+            last = last.getPrevious();
         }
         return last.getValue();
     }
@@ -169,23 +164,26 @@ public class LinkedList<T>  implements MyList<T> {
     @Override
     public int indexOf(T o) {
         ListNode<T> last = first;
-        int count=0;
-        while (last.getNext() != null){
-            if(last.getValue()!=o){
-                last=last.getNext();
+        int count = 0;
+        while (last.getNext() != null) {
+            if (last.getValue() != o) {
+                last = last.getNext();
                 count++;
                 break;
-            }else{
-                count=-1;
+            } else {
+                count = -1;
             }
         }
         return count;
     }
 
     public static void main(String[] args) {
-        LinkedList linkedList =new LinkedList();
-        linkedList.add(1);
-        linkedList.add(2);
-        linkedList.add(3);
+        LinkedList linkedList = new LinkedList();
+        linkedList.add("sa");
+        linkedList.add("si");
+        linkedList.add("re");
+        linkedList.remove("si");
+        linkedList.clear();
+        System.out.println(linkedList.size());
     }
 }
