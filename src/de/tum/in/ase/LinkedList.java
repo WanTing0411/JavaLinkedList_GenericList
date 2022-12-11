@@ -19,15 +19,23 @@ public class LinkedList<T> implements MyList<T> {
 
     @Override
     public String toString() {
-        StringBuilder sb =new StringBuilder();
-        ListNode<T> tool =first;
-        sb.append("[");
-        while (tool!=null){
-            sb.append(tool.getValue()+",");
-            tool=tool.getNext();
+        String result = "";
+        ListNode<T> tool = first;
+        if (tool == null) {
+            return "[" + result + "]";
+        } else if (tool.getNext() == null) {
+            result += tool.getValue();
+            return "[" + result + "]";
+        } else {
+            while (tool != null) {
+                result += tool.getValue();
+                if (tool.getNext() != null) {
+                    result += ", ";
+                }
+                tool = tool.getNext();
+            }
+            return "[" + result + "]";
         }
-        sb.append("]");
-        return sb.toString();
     }
 
     // TODO: add getters and setters
@@ -69,12 +77,17 @@ public class LinkedList<T> implements MyList<T> {
     @Override
     public boolean contains(T o) {
         boolean contain = false;
-        ListNode<T> last = first;
-        while (last.getNext() != null) {
-            if (last.getValue().equals(o)) {
+        ListNode<T> tool = first;
+        while (tool.getValue() != null) {
+            if (tool.getValue().equals(o)) {
                 contain = true;
+                break;
             } else {
-                last = last.getNext();
+                if(tool.getNext()!=null){
+                    tool = tool.getNext();
+                }else{
+                    break;
+                }
             }
         }
         return contain;
@@ -119,12 +132,17 @@ public class LinkedList<T> implements MyList<T> {
 
     @Override
     public T get(int index) {
-        if (index >= size()) {
-            throw new IndexOutOfBoundsException();
-        } else {
-            findNode(index);
+        try {
+            if (index < 0 || index > size()) {
+                throw new IndexOutOfBoundsException("List index is out of bound");
+            } else {
+                findNode(index);
+                return findNode(index).getValue();
+            }
+        } catch (IndexOutOfBoundsException e) {
+            e.printStackTrace();
+            return null;
         }
-        return findNode(index).getValue();
     }
 
     private ListNode<T> findNode(int index) {
@@ -140,46 +158,36 @@ public class LinkedList<T> implements MyList<T> {
     @Override
     public void add(int index, T element) {
         ListNode<T> node = new ListNode<>(element);
+        //rangeCheck(index);
         try {
-            if (index<0 ||index>size()) {
-                throw new IndexOutOfBoundsException();
-            }else if(isEmpty()){  // list is empty
-                first=node;
-                last=node;
-            } else if (index==0) { // insert before head
+            if (index < 0 || index > size()) {
+                throw new IndexOutOfBoundsException("List index is out of bound");
+            } else if (isEmpty()) {  // list is empty
+                first = node;
+                last = node;
+            } else if (index == 0) { // insert before head
                 node.setNext(first);
                 first.setPrevious(node);
-                first=node;
-            } else if (index ==size()) { // insert after tail
+                first = node;
+            } else if (index == size()) { // insert after tail
                 node.setPrevious(last);
                 last.setNext(node);
-                last=node;
-            }else { //general case
-                ListNode<T> pre =null;
-                ListNode<T> tool =first;
-                while(index>0){
-                    pre= tool;
-                    tool=tool.getNext();
+                last = node;
+            } else { //general case
+                ListNode<T> pre = null;
+                ListNode<T> tool = first;
+                while (index > 0) {
+                    pre = tool;
+                    tool = tool.getNext();
                     index--;
                 }
                 node.setNext(tool);
                 node.setPrevious(pre);
                 pre.setNext(node);
                 tool.setPrevious(node);
-//                for (int i=1;i<index;i++){  //*ask Q
-//                    tool=tool.getNext();
-//                }
-//                node.setNext(tool);
-//                node.setPrevious(tool.getPrevious());
-//                tool.setPrevious(node); //set tool previous become node address
-//                tool.getPrevious().setNext(node); //equal the front node's next become node address
-//                if(index==0){
-//                    first=node;
-//                }
             }
-            //n++;
         } catch (IndexOutOfBoundsException e) {
-            System.out.println("List index is out of bound");
+            e.printStackTrace();
         }
     }
 
@@ -187,56 +195,57 @@ public class LinkedList<T> implements MyList<T> {
     @Override
     public T remove(int index) {
         try {
-            if (index<0 ||index>size()) {
-                throw new IndexOutOfBoundsException();
+            if (index < 0 || index > size()) {
+                throw new IndexOutOfBoundsException("List index is out of bound");
+            } else if (index == 0) { // remove head
+                ListNode<T> oldFirst = first;
+                first = first.getNext();
+                if (first != null) {
+                    first.setPrevious(null);
+                } else {
+                    setLast(null);
+                }
+                oldFirst.setNext(null);
+                return oldFirst.getValue();
+            } else if (index == size()) { // remove last
+                ListNode<T> tool = last;
+                last = last.getPrevious();
+                if (last == null) {
+                    first = null;
+                } else {
+                    last.setNext(null);
+                }
+                return tool.getValue();
+            } else { //general case
+                ListNode<T> pre = null;
+                ListNode<T> tool = first;
+                while (index > 0) {
+                    pre = tool;
+                    tool = tool.getNext();
+                    index--;
+                }
+                pre.setNext(tool.getNext());
+                tool.getNext().setPrevious(pre);
+                return tool.getValue();
             }
+
         } catch (IndexOutOfBoundsException e) {
-            System.out.println("List index is out of bound");
+            e.printStackTrace();
         }
-        if (index==0) { // remove head
-            ListNode<T> oldFirst= first;
-            first=first.getNext();
-            if(first!=null){
-                first.setPrevious(null);
-            }else {
-                setLast(null);
-            }
-            oldFirst.setNext(null);
-            return oldFirst.getValue();
-        } else if (index ==size()-1) { // remove last
-            ListNode<T> tool=last;
-            last=last.getPrevious();
-            if(last==null){
-                first=null;
-            }else {
-                last.setNext(null);
-            }
-            return tool.getValue();
-        }else { //general case
-            ListNode<T> pre =null;
-            ListNode<T> tool =first;
-            while(index>0){
-                pre= tool;
-                tool=tool.getNext();
-                index--;
-            }
-            pre.setNext(tool.getNext());
-            tool.getNext().setPrevious(pre);
-            return tool.getValue();
-        }
+        return null;
     }
 
     @Override
     public int indexOf(T o) {
         ListNode<T> tool = first;
         int index = 0;
-        if(o==null||tool==null){
+        if (o == null || tool == null) {
             return -1;
-        }else{
-            for(tool=first;tool!=null;tool=tool.getNext()){
-                if(tool.getValue()==o){
+        } else {
+            for (tool = first; tool != null; tool = tool.getNext()) {
+                if (tool.getValue() == o) {
                     return index;
-                }else {
+                } else {
                     index++;
                 }
             }
@@ -244,25 +253,4 @@ public class LinkedList<T> implements MyList<T> {
         }
     }
 
-    public static void main(String[] args) {
-        LinkedList linkedList = new LinkedList();
-        linkedList.add("sa");
-        linkedList.add("si");
-        linkedList.add("re");
-//        System.out.println( linkedList.get(2));
-//        System.out.println(linkedList.get(0));
-        linkedList.add(0,"yo");
-        linkedList.add(1,"rr");
-        System.out.println(linkedList.toString());
-        //linkedList.remove("si");
-        //linkedList.clear();
-        linkedList.remove(1);
-        System.out.println(linkedList.toString());
-        linkedList.remove(0);
-        System.out.println(linkedList.toString());
-        System.out.println(linkedList.indexOf("sa"));
-        System.out.println(linkedList.indexOf("si"));
-        System.out.println(linkedList.indexOf("re"));
-        System.out.println(linkedList.indexOf("aa"));
-    }
 }
