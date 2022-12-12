@@ -83,9 +83,9 @@ public class LinkedList<T> implements MyList<T> {
                 contain = true;
                 break;
             } else {
-                if(tool.getNext()!=null){
+                if (tool.getNext() != null) {
                     tool = tool.getNext();
-                }else{
+                } else {
                     break;
                 }
             }
@@ -132,17 +132,11 @@ public class LinkedList<T> implements MyList<T> {
 
     @Override
     public T get(int index) {
-        try {
-            if (index < 0 || index > size()) {
-                throw new IndexOutOfBoundsException("List index is out of bound");
-            } else {
-                findNode(index);
-                return findNode(index).getValue();
-            }
-        } catch (IndexOutOfBoundsException e) {
-            e.printStackTrace();
-            return null;
+        if (index < 0 || index > size() || isEmpty() == true) {
+            throw new IndexOutOfBoundsException("List index is out of bound");
         }
+        findNode(index);
+        return findNode(index).getValue();
     }
 
     private ListNode<T> findNode(int index) {
@@ -157,82 +151,73 @@ public class LinkedList<T> implements MyList<T> {
 
     @Override
     public void add(int index, T element) {
+        if (index > size() || index < 0) {
+            throw new IndexOutOfBoundsException("List index is out of bound");
+        }
         ListNode<T> node = new ListNode<>(element);
-        //rangeCheck(index);
-        try {
-            if (index < 0 || index > size()) {
-                throw new IndexOutOfBoundsException("List index is out of bound");
-            } else if (isEmpty()) {  // list is empty
-                first = node;
-                last = node;
-            } else if (index == 0) { // insert before head
-                node.setNext(first);
-                first.setPrevious(node);
-                first = node;
-            } else if (index == size()) { // insert after tail
-                node.setPrevious(last);
-                last.setNext(node);
-                last = node;
-            } else { //general case
-                ListNode<T> pre = null;
-                ListNode<T> tool = first;
-                while (index > 0) {
-                    pre = tool;
-                    tool = tool.getNext();
-                    index--;
-                }
-                node.setNext(tool);
-                node.setPrevious(pre);
-                pre.setNext(node);
-                tool.setPrevious(node);
+        if (isEmpty()) {  // list is empty
+            first = node;
+            last = node;
+        } else if (index == 0) { // insert before head
+            node.setNext(first);
+            first.setPrevious(node);
+            first = node;
+        } else if (index == size()) { // insert after tail
+            node.setPrevious(last);
+            last.setNext(node);
+            last = node;
+        } else { //general case
+            ListNode<T> pre = null;
+            ListNode<T> tool = first;
+            while (index > 0) {
+                pre = tool;
+                tool = tool.getNext();
+                index--;
             }
-        } catch (IndexOutOfBoundsException e) {
-            e.printStackTrace();
+            node.setNext(tool);
+            node.setPrevious(pre);
+            pre.setNext(node);
+            tool.setPrevious(node);
         }
     }
 
 
     @Override
     public T remove(int index) {
-        try {
-            if (index < 0 || index > size()) {
-                throw new IndexOutOfBoundsException("List index is out of bound");
-            } else if (index == 0) { // remove head
-                ListNode<T> oldFirst = first;
-                first = first.getNext();
-                if (first != null) {
-                    first.setPrevious(null);
-                } else {
-                    setLast(null);
-                }
-                oldFirst.setNext(null);
-                return oldFirst.getValue();
-            } else if (index == size()) { // remove last
-                ListNode<T> tool = last;
-                last = last.getPrevious();
-                if (last == null) {
-                    first = null;
-                } else {
-                    last.setNext(null);
-                }
-                return tool.getValue();
-            } else { //general case
-                ListNode<T> pre = null;
-                ListNode<T> tool = first;
-                while (index > 0) {
-                    pre = tool;
-                    tool = tool.getNext();
-                    index--;
-                }
-                pre.setNext(tool.getNext());
-                tool.getNext().setPrevious(pre);
-                return tool.getValue();
-            }
-
-        } catch (IndexOutOfBoundsException e) {
-            e.printStackTrace();
+        if (index < 0 || index > size()) {
+            throw new IndexOutOfBoundsException("List index is out of bound");
         }
-        return null;
+        if (index == 0) { // remove head
+            ListNode<T> oldFirst = first;
+            first = first.getNext();
+            if (first != null) {
+                first.setPrevious(null);
+            } else {
+                setLast(null);
+            }
+            oldFirst.setNext(null);
+            return oldFirst.getValue();
+        } else if (index == size()) { // remove last
+            ListNode<T> tool = last;
+            last = last.getPrevious();
+            if (last == null) {
+                first = null;
+            } else {
+                last.setNext(null);
+            }
+            return tool.getValue();
+        } else { //general case
+            ListNode<T> pre = null;
+            ListNode<T> tool = first;
+            while (index > 0) {
+                pre = tool;
+                tool = tool.getNext();
+                index--;
+            }
+            pre.setNext(tool.getNext());
+            tool.getNext().setPrevious(pre);
+            return tool.getValue();
+        }
     }
 
     @Override
