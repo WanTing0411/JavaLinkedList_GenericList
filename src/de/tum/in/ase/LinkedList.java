@@ -78,16 +78,29 @@ public class LinkedList<T> implements MyList<T> {
     public boolean contains(T o) {
         boolean contain = false;
         ListNode<T> tool = first;
-        while (tool.getValue() != null) {
-            if (tool.getValue().equals(o)) {
-                contain = true;
-                break;
-            } else {
-                if (tool.getNext() != null) {
-                    tool = tool.getNext();
-                } else {
-                    break;
+        if(o==null){
+            for(tool=first;tool!=null;tool=tool.getNext())for(tool=first;tool!=null;tool=tool.getNext()){
+                if(tool.getValue()==null){
+                    contain=true;
+                    return contain;
                 }
+            }
+        }else{  //o!=null
+            for(tool=first;tool!=null;tool=tool.getNext())for(tool=first;tool!=null;tool=tool.getNext()){
+                if(tool.getNext()!=null){
+                    if(o.equals(tool.getValue())){
+                        contain=true;
+                        return contain;
+                    }
+                }else{
+                    if(o.equals(tool.getValue())){
+                        contain=true;
+                        return contain;
+                    }else{
+                        return contain;
+                    }
+                }
+
             }
         }
         return contain;
@@ -106,16 +119,57 @@ public class LinkedList<T> implements MyList<T> {
     @Override
     public void remove(T o) {
         ListNode<T> tool = first;
-        while (tool.getNext() != null) {
-            if (tool.getValue().equals(o)) {
-                tool = tool.getNext();
-                tool.setPrevious(first);
-                first.setNext(tool);
-                break;
-            } else {
-                tool = tool.getNext();
+        if(o==null){
+            for(tool=first;tool!=null;tool=tool.getNext()){
+                if(tool.getValue()==null) {
+                    if(tool==first) {
+                        tool=tool.getNext();
+                        tool.setPrevious(first.getPrevious());
+                        first=tool;
+                        break;
+                    } else if (tool==last) {
+                        tool=tool.getPrevious();
+                        tool.setNext(last.getNext());
+                        last=tool;
+                        break;
+                    }else{
+                        tool.getNext().setPrevious(tool.getPrevious());
+                        tool.getPrevious().setNext(tool.getNext());
+                        break;
+                    }
+                }
+            }
+        }else{
+            for(tool=first;tool!=null;tool=tool.getNext()){
+                if(o.equals(tool.getValue())){
+                    if(tool==first) {
+                        tool=tool.getNext();
+                        tool.setPrevious(first.getPrevious());
+                        first=tool;
+                        break;
+                    } else if (tool==last) {
+                        tool=tool.getPrevious();
+                        tool.setNext(last.getNext());
+                        last=tool;
+                        break;
+                    }else{
+                        tool.getNext().setPrevious(tool.getPrevious());
+                        tool.getPrevious().setNext(tool.getNext());
+                        break;
+                    }
+                }
             }
         }
+//        while (tool.getNext() != null) {
+//            if (tool.getValue().equals(o)) {
+//                tool = tool.getNext();
+//                tool.setPrevious(first);
+//                first.setNext(tool);
+//                break;
+//            } else {
+//                tool = tool.getNext();
+//            }
+//        }
     }
 
     @Override
@@ -222,20 +276,20 @@ public class LinkedList<T> implements MyList<T> {
 
     @Override
     public int indexOf(T o) {
-        ListNode<T> tool = first;
         int index = 0;
-        if (o == null || tool == null) {
-            return -1;
-        } else {
-            for (tool = first; tool != null; tool = tool.getNext()) {
-                if (tool.getValue() == o) {
+        ListNode<T> tool = first;
+        if(o==null){
+            for(tool=first;tool !=null;tool=tool.getNext(),index++)
+                if(tool.getValue()==null){
                     return index;
-                } else {
-                    index++;
                 }
-            }
-            return -1;
+        }else{
+            for(tool=first;tool!=null;tool=tool.getNext(), index++)
+                if(o.equals(tool.getValue())){
+                    return index;
+                }
         }
+        return -1;
     }
 
 }
